@@ -1,3 +1,2 @@
-bin_PROGRAMS = bsort qsort
+bin_PROGRAMS = bsort
 bsort_SOURCES = bsort.c
-qsort_SOURCES = qsort.c

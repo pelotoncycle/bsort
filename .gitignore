@@ -17,4 +17,7 @@ config.status
 src/.deps/
 src/Makefile
 xsstamp-h1
+src/bsortstamp-h1
+*.orig
+stamp-h1
 src/bsort
