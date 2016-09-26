@@ -22,8 +22,18 @@ struct sort {
 };
 
 
+static unsigned long getTick(void) {
+  struct timespec ts;
+  unsigned theTick = 0U;
+  clock_gettime( CLOCK_REALTIME, &ts );
+  theTick  = ts.tv_nsec / 1000000;
+  theTick += ts.tv_sec * 1000;
+  return theTick;
+}
+
+
 static inline void
-shellsort(const unsigned char *a,
+shellsort(unsigned char *a,
           const int n,
           const int record_size,
           const int key_size) {
@@ -54,28 +64,28 @@ int compare(int *length, unsigned char *a, unsigned char *b) {
 
 
 void
-radixify(const unsigned char *buffer,
-         const int count,
-         const int digit,
-         const int char_start,
-         const int char_stop,
-         const int record_size,
-         const int key_size,
-         const int stack_size,
-         const int cut_off) {
-  int counts[char_stop+1];
-  int offsets[char_stop+1];
-  int starts[char_stop+1];
-  int ends[char_stop+1];
-  int offset=0;
+radixify(unsigned char *buffer,
+         const long count,
+         const long digit,
+         const long char_start,
+         const long char_stop,
+         const long record_size,
+         const long key_size,
+         const long stack_size,
+         const long cut_off) {
+  long counts[char_stop+1];
+  long offsets[char_stop+1];
+  long starts[char_stop+1];
+  long ends[char_stop+1];
+  long offset=0;
   unsigned char temp[record_size];
-  int target, x, a, b;
-  int stack[stack_size];
-  int stack_pointer;
-  int last_position, last_value, next_value;
+  long target, x, a, b;
+  long stack[stack_size];
+  long stack_pointer;
+  long last_position, last_value, next_value;
 
   if (verbosity && digit == 0)
-    fprintf(stderr, "radixify(count=%d, digit=%d, char_start=%d, char_stop=%d, record_size=%d, key_size=%d, stack_size=%d, cut_off=%d)\n", count, digit, char_start, char_stop, record_size, key_size, stack_size, cut_off);
+    fprintf(stderr, "radixify(count=%ld, digit=%ld, char_start=%ld, char_stop=%ld, record_size=%ld, key_size=%ld, stack_size=%ld, cut_off=%ld)\n", count, digit, char_start, char_stop, record_size, key_size, stack_size, cut_off);
 
   for (x=char_start; x<=char_stop; x++) {
     counts[x] = 0;
@@ -84,7 +94,7 @@ radixify(const unsigned char *buffer,
 
   // Compute starting positions
   for (x=0; x<count; x++) {
-    int c = buffer[x*record_size + digit];
+    long c = buffer[x*record_size + digit];
     counts[c] += 1;
   }
 
@@ -108,7 +118,6 @@ radixify(const unsigned char *buffer,
       if (buffer[offsets[x] * record_size + digit] == x) {
         offsets[x] += 1;
       } else {
-        int p=0;
         stack_pointer=0;
         stack[stack_pointer] = offsets[x];
         stack_pointer += 1;
@@ -224,6 +233,7 @@ main(int argc, char *argv[]) {
   int stack_size=5;
   int cut_off = 4;
   verbosity = 0;
+
   while ((opt = getopt(argc, argv, "var:k:s:c:")) != -1) {
     switch (opt) {
     case 'v':
@@ -255,6 +265,8 @@ main(int argc, char *argv[]) {
     goto failure;
   }
 
+  unsigned long TickStart = getTick();
+
   while(optind < argc) {
     if (verbosity)
       printf("sorting %s\n", argv[optind]);
@@ -267,13 +279,15 @@ main(int argc, char *argv[]) {
              0,
              char_start,
              char_stop,
-             key_size,
              record_size,
+             key_size,
              stack_size,
              cut_off);
     close_sort(&sort);
     optind++;
   }
+
+  printf("Processing time: %.3f s\n", (float)(getTick() - TickStart) / 1000);
 
   exit(0);
 failure:
