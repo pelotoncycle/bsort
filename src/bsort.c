@@ -254,6 +254,7 @@ main(int argc, char *argv[]) {
       break;
     case 'c':
       cut_off = atoi(optarg);
+      break;
     default:
       fprintf(stderr, "Invalid parameter: -%c\n", opt);
       goto failure;
