@@ -74,8 +74,8 @@ sort 10,000,000 records in 1.7 seconds vs 4.2 for qsort running on an
     10000000 16 bytes records sorted in  16.8088638783 seconds
 ```
 
-Unlike qsort, bsort's use of memory reasonally well preserves locality.   It
-suitable for sorting binary datasets substantially larger than memory.
+Unlike qsort, bsort's use of memory reasonally well to preserve locality.
+It suitable for sorting binary datasets substantially larger than memory.
 
 On a mid 2014 era macbook pro 15" with an I7 and 16Gb RAM runnin an
 early prototype of bsort in `src/j18e.c` was ... well ... you read the memo
@@ -86,7 +86,7 @@ You've probably heard of http://sortbenchmark.org; one of their
 competitions is "energy efficient sorts."  The current world record
 for 10^8 100 byte records is 889 Joules.
 
-A Macbook Pro running one core flat our consumes 16 watts, with the
+A Macbook Pro running one core flat out consumes 16 watts, with the
 screen turned on.  My custom msb inplace radix sort with a custom
 gapped shell sort for cleanup runs in 21.7 second.  That's ~350
 Joules.
