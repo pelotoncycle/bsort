@@ -11,8 +11,7 @@
 
 #define SWITCH_TO_SHELL 20
 
-
-int verbosity;
+namespace bsort {
 
 
 struct sort {
@@ -84,9 +83,6 @@ radixify(unsigned char *buffer,
   long stack_pointer;
   long last_position, last_value, next_value;
 
-  if (verbosity && digit == 0)
-    fprintf(stderr, "radixify(count=%ld, digit=%ld, char_start=%ld, char_stop=%ld, record_size=%ld, key_size=%ld, stack_size=%ld, cut_off=%ld)\n", count, digit, char_start, char_stop, record_size, key_size, stack_size, cut_off);
-
   for (x=char_start; x<=char_stop; x++) {
     counts[x] = 0;
     offsets[x] = 0;
@@ -157,14 +153,12 @@ radixify(unsigned char *buffer,
       } else {
         if (ends[x] - starts[x] <= 1) continue;
         shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
-        //qsort_r(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, &compare, &record_size);
       }
     }
   } else {
     for(x=char_start; x<=char_stop; x++)
       if (ends[x] - starts[x] > 1) {
         shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
-        //qsort_r(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, &compare, &record_size);
       }
   }
 }
@@ -223,6 +217,9 @@ void close_sort(struct sort *sort) {
 }
 
 
+}
+
+
 int
 main(int argc, char *argv[]) {
   int opt;
@@ -232,7 +229,8 @@ main(int argc, char *argv[]) {
   int key_size=10;
   int stack_size=5;
   int cut_off = 4;
-  verbosity = 0;
+  int verbosity = 0;
+  unsigned long TickStart;
 
   while ((opt = getopt(argc, argv, "var:k:s:c:")) != -1) {
     switch (opt) {
@@ -265,16 +263,16 @@ main(int argc, char *argv[]) {
     goto failure;
   }
 
-  unsigned long TickStart = getTick();
+  TickStart = bsort::getTick();
 
   while(optind < argc) {
     if (verbosity)
       printf("sorting %s\n", argv[optind]);
-    struct sort sort;
-    if (-1==open_sort(argv[optind], &sort))
+    struct bsort::sort sort;
+    if (-1==bsort::open_sort(argv[optind], &sort))
       goto failure;
 
-    radixify(sort.buffer,
+    bsort::radixify((unsigned char*)sort.buffer,
              sort.size / record_size,
              0,
              char_start,
@@ -287,7 +285,7 @@ main(int argc, char *argv[]) {
     optind++;
   }
 
-  printf("Processing time: %.3f s\n", (float)(getTick() - TickStart) / 1000);
+  printf("Processing time: %.3f s\n", (float)(bsort::getTick() - TickStart) / 1000);
 
   exit(0);
 failure:
@@ -315,7 +313,5 @@ failure:
          );
   exit(1);
 }
-
-
 
 
