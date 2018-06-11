@@ -1,4 +1,4 @@
-#include "bsort.h"
+#include "bsort.hpp"
 
 int
 main(int argc, char *argv[]) {
