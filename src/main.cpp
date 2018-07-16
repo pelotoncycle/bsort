@@ -43,8 +43,6 @@ main(int argc, char *argv[]) {
     goto failure;
   }
 
-  TickStart = bsort::getTick();
-
   while(optind < argc) {
     if (verbosity)
       printf("sorting %s\n", argv[optind]);
@@ -64,8 +62,6 @@ main(int argc, char *argv[]) {
     close_sort(&sort);
     optind++;
   }
-
-  printf("Processing time: %.3f s\n", (float)(bsort::getTick() - TickStart) / 1000);
 
   exit(0);
 failure:
