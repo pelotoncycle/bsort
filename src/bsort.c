@@ -293,8 +293,8 @@ main(int argc, char *argv[]) {
              char_stop,
              record_size,
              key_size,
-             stack_size,
              key_start,
+             stack_size,
              cut_off);
     close_sort(&sort);
     optind++;
