@@ -43,7 +43,7 @@ shellsort(unsigned char *a,
 
   for (i=3; i < n; i++) {
     memcpy(&temp, &a[i * record_size], record_size);
-    for(j=i; j>=3 && memcmp(a+(j-3)*record_size + key_start, &temp, key_size) >0; j -= 3) {
+    for(j=i; j>=3 && memcmp(a+(j-3)*record_size + key_start, &temp + key_start, key_size) >0; j -= 3) {
       memcpy(a+j*record_size, a+(j-3)*record_size, record_size);
     }
     memcpy(a+j*record_size, &temp, record_size);
@@ -51,7 +51,7 @@ shellsort(unsigned char *a,
 
   for (i=1; i < n; i++) {
     memcpy(&temp, &a[i*record_size], record_size);
-    for(j=i; j>=1 && memcmp(a+(j-1)*record_size + key_start, &temp, key_size) >0; j -= 1) {
+    for(j=i; j>=1 && memcmp(a+(j-1)*record_size + key_start, &temp + key_start, key_size) >0; j -= 1) {
       memcpy(a+j*record_size, a+(j-1)*record_size, record_size);
     }
     memcpy(a+j*record_size, &temp, record_size);
