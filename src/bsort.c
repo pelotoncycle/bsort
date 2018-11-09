@@ -34,11 +34,11 @@ static unsigned long getTick(void) {
 
 static inline void
 shellsort(unsigned char *a,
-          const int n,
-          const int record_size,
-          const int key_size,
-          const int key_start) {
-  int i, j;
+          const long n,
+          const long record_size,
+          const long key_size,
+          const long key_start) {
+  long i, j;
   char temp[record_size];
 
   for (i=3; i < n; i++) {
