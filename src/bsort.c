@@ -261,6 +261,7 @@ main(int argc, char *argv[]) {
       break;
     case 'c':
       cut_off = atoi(optarg);
+      break;
     default:
       fprintf(stderr, "Invalid parameter: -%c\n", opt);
       goto failure;
@@ -305,7 +306,7 @@ main(int argc, char *argv[]) {
   exit(0);
 failure:
   fprintf(stderr,
-          "Usage: %s [-v] [-a] [-r ###] [-k ###] [-s ###] file1, file2 ... \n",
+          "Usage: %s [-v] [-a] [-r ###] [-k ###] [-s ###] [-c ###] file1, file2 ... \n",
           argv[0]);
   fprintf(stderr,
           "Individually sort binary files inplace with a radix sort\n"
