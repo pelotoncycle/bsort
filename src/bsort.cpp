@@ -43,7 +43,8 @@ radixify(unsigned char *buffer,
          const long record_size,
          const long key_size,
          const long stack_size,
-         const long cut_off) {
+         const long cut_off,
+         const long switch_to_shell) {
   long counts[char_stop+1];
   long offsets[char_stop+1];
   long starts[char_stop+1];
@@ -65,7 +66,6 @@ radixify(unsigned char *buffer,
     long c = buffer[x*record_size + digit];
     counts[c] += 1;
   }
-
 
   // Compute offsets
   offset = 0;
@@ -110,9 +110,12 @@ radixify(unsigned char *buffer,
     }
   }
 
+#pragma omp parallel
+  {
   if (digit < cut_off) {
     for(x=char_start; x<=char_stop; x++) {
-      if ( ends[x] - starts[x] > SWITCH_TO_SHELL) {
+      if ( ends[x] - starts[x] > switch_to_shell) {
+#pragma omp task
         radixify(&buffer[starts[x] * record_size],
                  ends[x] - starts[x],
                  digit+1,
@@ -121,17 +124,21 @@ radixify(unsigned char *buffer,
                  record_size,
                  key_size,
                  stack_size,
-                 cut_off);
+                 cut_off,
+                 switch_to_shell);
       } else {
         if (ends[x] - starts[x] <= 1) continue;
+#pragma omp task
         shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
       }
     }
   } else {
     for(x=char_start; x<=char_stop; x++)
       if (ends[x] - starts[x] > 1) {
+#pragma omp task
         shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
       }
+  }
   }
 }
 

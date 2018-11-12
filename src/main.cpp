@@ -9,10 +9,12 @@ main(int argc, char *argv[]) {
   int key_size=10;
   int stack_size=5;
   int cut_off = 4;
+  int switch_to_shell = 20;
   int verbosity = 0;
+  omp_set_num_threads(1);
   unsigned long TickStart;
 
-  while ((opt = getopt(argc, argv, "var:k:s:c:")) != -1) {
+  while ((opt = getopt(argc, argv, "var:k:s:c:t:w:")) != -1) {
     switch (opt) {
     case 'v':
       verbosity += 1;
@@ -30,8 +32,15 @@ main(int argc, char *argv[]) {
     case 's':
       stack_size = atoi(optarg);
       break;
+    case 'w':
+      switch_to_shell = atoi(optarg);
+      break;
+    case 't':
+      omp_set_num_threads(atoi(optarg));
+      break;
     case 'c':
       cut_off = atoi(optarg);
+      break;
     default:
       fprintf(stderr, "Invalid parameter: -%c\n", opt);
       goto failure;
@@ -51,14 +60,15 @@ main(int argc, char *argv[]) {
       goto failure;
 
     bsort::radixify((unsigned char*)sort.buffer,
-             sort.size / record_size,
-             0,
-             char_start,
-             char_stop,
-             record_size,
-             key_size,
-             stack_size,
-             cut_off);
+                    sort.size / record_size,
+                    0,
+                    char_start,
+                    char_stop,
+                    record_size,
+                    key_size,
+                    stack_size,
+                    cut_off,
+                    switch_to_shell);
     close_sort(&sort);
     optind++;
   }
@@ -76,6 +86,7 @@ failure:
           "  -a       assume files are printable 7-bit ascii instead of binary\n"
           "  -k ###   size of compariable section of record, in bytes (default 100)\n"
           "  -r ###   size of overall record, in bytes.  (default 100)\n"
+          "  -t ###   number of threads to use.  (default 1)\n"
           "\n"
           "Options:\n"
           "  -v  verbose output logging\n"

@@ -10,8 +10,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-
-#define SWITCH_TO_SHELL 20
+#include <omp.h>
 
 namespace bsort {
 
@@ -38,7 +37,8 @@ radixify(unsigned char *buffer,
          const long record_size,
          const long key_size,
          const long stack_size,
-         const long cut_off);
+         const long cut_off,
+         const long switch_to_shell);
 
 int open_sort(char *path, struct sort *sort);
 
