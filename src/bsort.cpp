@@ -116,7 +116,7 @@ radixify(unsigned char *buffer,
   if (digit < cut_off) {
     for(x=char_start; x<=char_stop; x++) {
       if ( ends[x] - starts[x] > switch_to_shell) {
-#pragma omp task shared(buffer)
+#pragma omp task
         radixify(&buffer[starts[x] * record_size],
                  ends[x] - starts[x],
                  digit+1,
@@ -129,14 +129,14 @@ radixify(unsigned char *buffer,
                  switch_to_shell);
       } else {
         if (ends[x] - starts[x] <= 1) continue;
-#pragma omp task shared(buffer)
+#pragma omp task
         shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
       }
     }
   } else {
     for(x=char_start; x<=char_stop; x++)
       if (ends[x] - starts[x] > 1) {
-#pragma omp task shared(buffer)
+#pragma omp task
         shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
       }
   }
