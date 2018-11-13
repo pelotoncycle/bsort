@@ -7,9 +7,9 @@ project(bsort)
 # We build using c++11
 set(CMAKE_CXX_STANDARD 11)
 
-# use openmp
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -O3")
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -O3")
+# Set optimization flags
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 # We use OpenMP for parallelism
 find_package(OpenMP)
