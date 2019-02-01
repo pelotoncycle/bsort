@@ -26,7 +26,7 @@ Installation
 This is an automake managed tool.  You can grab the tarball and do this:
 
 ```
-# curl https://media.githubusercontent.com/media/pelotoncycle/bsort/master/downloads/bsort-0.0.1.tar.gz  | tar -xvzf
+# curl https://media.githubusercontent.com/media/pelotoncycle/bsort/master/downloads/bsort-0.0.1.tar.gz  | tar -xvz
 # cd bsort
 # ./configure
 # make
