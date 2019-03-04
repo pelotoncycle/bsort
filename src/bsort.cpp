@@ -82,14 +82,14 @@ radixify(unsigned char *buffer,
 
   for(x=char_start; x<=char_stop; x++) {
     while (offsets[x] < ends[x]) {
-
-      if (buffer[offsets[x] * record_size + digit] == x) {
+      long query = buffer[offsets[x] * record_size + digit];
+      if (query == x) {
         offsets[x] += 1;
       } else {
         stack_pointer=0;
         stack[stack_pointer] = offsets[x];
         stack_pointer += 1;
-        target = buffer[offsets[x] * record_size + digit];
+        target = query;
         while( target != x && stack_pointer < stack_size ) {
           stack[stack_pointer] = offsets[target];
           offsets[target] += 1;
