@@ -20,7 +20,8 @@ if (OPENMP_FOUND)
   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # using Clang
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xpreprocessor -fopenmp -lomp")
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xpreprocessor -lomp")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -lomp")
   elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     # using GCC
   elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
