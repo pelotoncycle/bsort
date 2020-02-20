@@ -1,0 +1,4 @@
+all: bsort
+
+bsort: bsort.c bsort.h
+	g++ bsort.c -o bsort
