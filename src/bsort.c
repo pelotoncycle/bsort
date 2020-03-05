@@ -34,15 +34,16 @@ static unsigned long getTick(void) {
 
 static inline void
 shellsort(unsigned char *a,
-          const int n,
-          const int record_size,
-          const int key_size) {
-  int i, j;
+          const long n,
+          const long record_size,
+          const long key_size,
+          const long key_start) {
+  long i, j;
   char temp[record_size];
 
   for (i=3; i < n; i++) {
     memcpy(&temp, &a[i * record_size], record_size);
-    for(j=i; j>=3 && memcmp(a+(j-3)*record_size, &temp, key_size) >0; j -= 3) {
+    for(j=i; j>=3 && memcmp(a+(j-3)*record_size + key_start, &temp[key_start], key_size) >0; j -= 3) {
       memcpy(a+j*record_size, a+(j-3)*record_size, record_size);
     }
     memcpy(a+j*record_size, &temp, record_size);
@@ -50,7 +51,7 @@ shellsort(unsigned char *a,
 
   for (i=1; i < n; i++) {
     memcpy(&temp, &a[i*record_size], record_size);
-    for(j=i; j>=1 && memcmp(a+(j-1)*record_size, &temp, key_size) >0; j -= 1) {
+    for(j=i; j>=1 && memcmp(a+(j-1)*record_size + key_start, &temp[key_start], key_size) >0; j -= 1) {
       memcpy(a+j*record_size, a+(j-1)*record_size, record_size);
     }
     memcpy(a+j*record_size, &temp, record_size);
@@ -71,6 +72,7 @@ radixify(unsigned char *buffer,
          const long char_stop,
          const long record_size,
          const long key_size,
+         const long key_start,
          const long stack_size,
          const long cut_off) {
   long counts[char_stop+1];
@@ -85,7 +87,7 @@ radixify(unsigned char *buffer,
   long last_position, last_value, next_value;
 
   if (verbosity && digit == 0)
-    fprintf(stderr, "radixify(count=%ld, digit=%ld, char_start=%ld, char_stop=%ld, record_size=%ld, key_size=%ld, stack_size=%ld, cut_off=%ld)\n", count, digit, char_start, char_stop, record_size, key_size, stack_size, cut_off);
+    fprintf(stderr, "radixify(count=%ld, digit=%ld, char_start=%ld, char_stop=%ld, record_size=%ld, key_size=%ld, key_start=%ld, stack_size=%ld, cut_off=%ld)\n", count, digit, char_start, char_stop, record_size, key_size, key_start, stack_size, cut_off);
 
   for (x=char_start; x<=char_stop; x++) {
     counts[x] = 0;
@@ -94,7 +96,7 @@ radixify(unsigned char *buffer,
 
   // Compute starting positions
   for (x=0; x<count; x++) {
-    long c = buffer[x*record_size + digit];
+    long c = buffer[x*record_size + key_start + digit];
     counts[c] += 1;
   }
 
@@ -115,17 +117,17 @@ radixify(unsigned char *buffer,
   for(x=char_start; x<=char_stop; x++) {
     while (offsets[x] < ends[x]) {
 
-      if (buffer[offsets[x] * record_size + digit] == x) {
+      if (buffer[offsets[x] * record_size + key_start + digit] == x) {
         offsets[x] += 1;
       } else {
         stack_pointer=0;
         stack[stack_pointer] = offsets[x];
         stack_pointer += 1;
-        target = buffer[offsets[x] * record_size + digit];
+        target = buffer[offsets[x] * record_size + key_start + digit];
         while( target != x && stack_pointer < stack_size ) {
           stack[stack_pointer] = offsets[target];
           offsets[target] += 1;
-          target = buffer[stack[stack_pointer] * record_size + digit];
+          target = buffer[stack[stack_pointer] * record_size + key_start + digit];
           stack_pointer++;
         };
         if (stack_pointer != stack_size) {
@@ -152,18 +154,19 @@ radixify(unsigned char *buffer,
                  char_stop,
                  record_size,
                  key_size,
+                 key_start,
                  stack_size,
                  cut_off);
       } else {
         if (ends[x] - starts[x] <= 1) continue;
-        shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
+        shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size, key_start);
         //qsort_r(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, &compare, &record_size);
       }
     }
   } else {
     for(x=char_start; x<=char_stop; x++)
       if (ends[x] - starts[x] > 1) {
-        shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size);
+        shellsort(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, key_size, key_start);
         //qsort_r(&buffer[starts[x] * record_size], ends[x] - starts[x], record_size, &compare, &record_size);
       }
   }
@@ -229,12 +232,13 @@ main(int argc, char *argv[]) {
   int char_start = 0;
   int char_stop = 255;
   int record_size=100;
+  int key_start=0;
   int key_size=10;
   int stack_size=5;
   int cut_off = 4;
   verbosity = 0;
 
-  while ((opt = getopt(argc, argv, "var:k:s:c:")) != -1) {
+  while ((opt = getopt(argc, argv, "var:k:s:b:c:")) != -1) {
     switch (opt) {
     case 'v':
       verbosity += 1;
@@ -252,8 +256,12 @@ main(int argc, char *argv[]) {
     case 's':
       stack_size = atoi(optarg);
       break;
+    case 'b':
+      key_start = atoi(optarg);
+      break;
     case 'c':
       cut_off = atoi(optarg);
+      break;
     default:
       fprintf(stderr, "Invalid parameter: -%c\n", opt);
       goto failure;
@@ -262,6 +270,11 @@ main(int argc, char *argv[]) {
 
   if (optind >= argc) {
     fprintf(stderr, "Expected argument after options\n");
+    goto failure;
+  }
+
+  if (key_start + key_size > record_size) {
+    fprintf(stderr, "-b plus -k should not exceed -r\n");
     goto failure;
   }
 
@@ -281,6 +294,7 @@ main(int argc, char *argv[]) {
              char_stop,
              record_size,
              key_size,
+             key_start,
              stack_size,
              cut_off);
     close_sort(&sort);
@@ -292,7 +306,7 @@ main(int argc, char *argv[]) {
   exit(0);
 failure:
   fprintf(stderr,
-          "Usage: %s [-v] [-a] [-r ###] [-k ###] [-s ###] file1, file2 ... \n",
+          "Usage: %s [-v] [-a] [-r ###] [-k ###] [-s ###] [-c ###] file1, file2 ... \n",
           argv[0]);
   fprintf(stderr,
           "Individually sort binary files inplace with a radix sort\n"
@@ -302,6 +316,7 @@ failure:
           "  -a       assume files are printable 7-bit ascii instead of binary\n"
           "  -k ###   size of compariable section of record, in bytes (default 100)\n"
           "  -r ###   size of overall record, in bytes.  (default 100)\n"
+          "  -b ###   start of the key in the the record, in bytes.  (default 0)\n"
           "\n"
           "Options:\n"
           "  -v  verbose output logging\n"
